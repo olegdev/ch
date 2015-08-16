@@ -2,16 +2,38 @@
  * Словарь
  */
 var fs = require('fs');
+var _ = require('underscore');
+var config = require(BASE_PATH + '/server/util').getModuleConfig(__filename);
 
 var Dictionary = function() {
-    this.words = JSON.parse(fs.readFileSync(__dirname + '/dictionary.json', 'utf8'));
+	var me = this;
+
+	/**
+	 * Список поддерживаемых языков
+	 */
+	me.langs = config.langs;
+
+	/**
+	 * Все переводы
+	 */
+	me.words = {};
+
+	for(var i = 0; i < config.langs.length; i++) {
+		me.words[config.langs[i]] = {};
+		if (fs.existsSync(__dirname + '/' + config.langs[i])) {
+			var files = fs.readdirSync(__dirname + '/' + config.langs[i]);
+			files.forEach(function(filename) {
+				me.words[config.langs[i]] = _.extend(me.words[config.langs[i]], JSON.parse(fs.readFileSync(__dirname + '/' + config.langs[i] + '/' + filename, 'utf8')));
+			});
+		}
+	}
 };
 
 /**
  * Вернет значения ключа (перевод)
  */
-Dictionary.prototype.get = function(key) {
-    return this.words[key] || key;
+Dictionary.prototype.get = function(lang, key) {
+    return this.words[lang][key] || key;
 };
 
 // Создает только один экземпляр класса

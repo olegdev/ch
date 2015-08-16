@@ -2,3 +2,4 @@
 /log
 node_modules
 vendor
+/server/services/dictionary/ru
