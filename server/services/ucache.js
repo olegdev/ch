@@ -1,7 +1,8 @@
 /**
  * Кеш юзера (персональный)
  */
-var winston = require('winston');
+ 
+var logger = require(SERVICES_PATH + '/logger/logger')(__filename);
 
 var CacheClass = function() {
 	this.cache = {};
@@ -9,9 +10,9 @@ var CacheClass = function() {
 
 // Создает только один экземпляр класса
 CacheClass.getInstance = function(){
-    if (!this.instance){
-    	/***/ winston.info('Создаю кеш');
+    if (!this.instance) {
     	this.instance = new CacheClass();
+    	/***/ logger.info('кеш создан');
     }
     return this.instance;
 }
@@ -37,7 +38,7 @@ CacheClass.prototype.setProp = function(uid, prop, value) {
 	if (data) {
 		data[prop] = value;
 	} else {
-		/***/ winston.error('ucache: ошибка записи - кеш не найден');
+		/***/ logger.error('ошибка записи - кеш не найден');
 	}
 }
 
@@ -46,7 +47,7 @@ CacheClass.prototype.getProp = function(uid, prop) {
 	if (data) {
 		data[prop] = value;
 	} else {
-		/***/ winston.error('ucache: ошибка чтения - кеш не найден');
+		/***/ logger.error('ошибка чтения - кеш не найден');
 	}
 }
  

@@ -5,22 +5,7 @@
 var winston = require('winston');
 var mongoose = require('mongoose');
 var q = require('q');
-var util = require('./util');
-var ucache = require('./ucache');
-
-var loadModel = function(dest, modelName) {
-	var model = mongoose.model(modelName);
-	var d = q.defer();
-	model.find().select('-_id').lean().exec(function (err, docs) {
-  		if (err) {
-  			d.reject(err);
-  		} else {
-  			dest[modelName] = docs;
-  			d.resolve();
-  		}
-	});
-	return d.promise;
-}
+var util = require(BASE_PATH + '/server/util');
 
 var loadUser = function(dest, uid) {
 	var model = mongoose.model('users');
@@ -37,23 +22,20 @@ var loadUser = function(dest, uid) {
 }
 
 module.exports = {
+	/**
+	 * Формирование юзерского конфига для клиента
+	 * @return Deferred callback
+	 */
 	getConfig: function(uid) {
 		var d = q.defer();
 
 		var config = {};
-
-		// справочики
-
-		config.refs = {};
 		
 		util
-			.whenAll([
-				loadModel(config.refs, 'location_protos'),
-				loadModel(config.refs, 'stage_protos'),
+			.whenAll([				
 				loadUser(config, uid),
 			])
-			.then(function() {	
-				ucache.set(uid, config.user);
+			.then(function() {
 				d.resolve(config);
 			})
 			.fail(function(err) {

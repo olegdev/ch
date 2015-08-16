@@ -1,3 +1,6 @@
+GLOBAL.BASE_PATH = __dirname;
+GLOBAL.SERVICES_PATH = __dirname + '/server/services';
+
 var express = require('express');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
@@ -8,21 +11,13 @@ var mongoose = require('mongoose');
 var winston = require('winston');
 var fs = require('fs');
 var join = require('path').join;
-var config = require('./config');
+var ucache = require(SERVICES_PATH + '/ucache');
+var dbconnect = require(SERVICES_PATH + '/dbconnect/dbconnect');
 
-var auth = require('./server/auth');
-var getConfig = require('./server/get_config');
+var auth = require(SERVICES_PATH + '/auth');
+var getConfig = require(SERVICES_PATH + '/getconfig');
 
-//============= Connect to mongodb ============
-
-var connect = function () {
-  var options = { server: { socketOptions: { keepAlive: 1 } } };
-  mongoose.connect(config.db.url, options);
-};
-connect();
-
-mongoose.connection.on('error', console.log);
-mongoose.connection.on('disconnected', connect);
+var port = 8081;
 
 //============= Create server ============
 
@@ -33,6 +28,10 @@ app.use(bodyParser.urlencoded({
   extended: true
 })); 
 app.use(cookieParser());
+
+// =========== DB connect as middleware ===============
+
+app.use(dbconnect);
 
 //============= Session ============
 
@@ -76,7 +75,8 @@ app.get("/", function(req, res, next) {
 	} else {
 		getConfig
 			.getConfig(req.session.uid)
-			.then(function(config) {				
+			.then(function(config) {
+				ucache.set(uid, config.user);
 				app.locals.config = JSON.stringify(config);
 				res.render('main', {layout: 'main'});
 			});
@@ -100,11 +100,11 @@ app.post('/login', function(req, res, next) {
 				res.end('Пользователь не найден.');
 			}
 		}, function(err) {
-			res.end('Ошибка авторизации.');
+			res.status(500).send("Internal server error");
 		});
 });
 
-var server = app.listen(config.port);
+var server = app.listen(port);
 
 // ============ Socket IO =========
 
@@ -112,6 +112,9 @@ var sio = require("socket.io").listen(server);
 
 sio.use(function(socket, next) {
     sessionMiddleware(socket.request, socket.request.res, next);
+});
+sio.use(function(socket, next) {
+    dbconnect(socket.request, socket.request.res, next);
 });
 
 sio.sockets.on("connection", function(client) {
@@ -125,8 +128,8 @@ sio.sockets.on("connection", function(client) {
 
 // ============= Bootstrap models ==========
 
-fs.readdirSync(join(__dirname, 'server/models')).forEach(function (file) {
-  if (~file.indexOf('.js')) require(join(__dirname, 'server/models', file));
+fs.readdirSync(join(BASE_PATH, 'server/models')).forEach(function (file) {
+  if (~file.indexOf('.js')) require(join(BASE_PATH, 'server/models', file));
 });
 
-console.log('Node app started on port ' + config.port);
+console.log('Node app started on port ' + port);

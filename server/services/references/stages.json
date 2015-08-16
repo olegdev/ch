@@ -1,0 +1,22 @@
+[{
+    "id": 1,
+    "id_location": 1,
+    "name": "dictionary(stage_name_1)",
+    "params": {
+        "description": "dictionary(stage_descr_1)",
+        "coords": {
+            "x": 10, "y": 10,
+        }
+    }
+},
+{
+    "id": 2,
+    "id_location": 1,
+    "name": "dictionary(stage_name_2)",
+    "params": {
+        "description": "dictionary(stage_descr_2)",
+        "coords": {
+            "x": 200, "y": 250,
+        }
+    }
+}]

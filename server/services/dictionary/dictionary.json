@@ -1,0 +1,22 @@
+{
+	"location_name_1": "Пустошь",
+	"location_descr_1": "Пустошь описание",
+
+	"location_name_2": "Темный лес",
+	"location_descr_2": "Темный лес описание",
+
+	"location_name_3": "Старый город",
+	"location_descr_3": "Старый город описание",
+
+	"location_name_4": "Ущелье Спауна",
+	"location_descr_4": "Ущелье Спауна описание",
+
+	"location_name_5": "Лысая гора",
+	"location_descr_5": "Лысая гора описание",
+
+	"stage_name_1": "Этап 1",
+	"stage_descr_1": "Этап 1 описание",
+
+	"stage_name_2": "Этап 1",
+	"stage_descr_2": "Этап 2 описание"
+}

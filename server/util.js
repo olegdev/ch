@@ -2,6 +2,7 @@
  * Утилиты
  */
 var q = require('q');
+var fs = require("fs");
 
 module.exports = {
 
@@ -23,6 +24,10 @@ module.exports = {
 		}
 
 		return deferred.promise;
+	},
+
+	getModuleConfig: function(filename) {
+		return JSON.parse(fs.readFileSync(filename.substr(0, filename.length-3) + '.config'));
 	}
 
 };
