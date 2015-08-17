@@ -2,7 +2,7 @@
  * Формирует конфиг для юзера при инициализации клиента
  */
 
-var winston = require('winston');
+var logger = require(SERVICES_PATH + '/logger/logger')(__filename);
 var mongoose = require('mongoose');
 var q = require('q');
 var util = require(BASE_PATH + '/server/util');
@@ -39,7 +39,7 @@ module.exports = {
 				d.resolve(config);
 			})
 			.fail(function(err) {
-				/***/ winston.error('get_config: Ошибка при формировании конфига', err);
+				/***/ logger.error('Ошибка при формировании конфига' + err);
 			});
 
 		return d.promise;

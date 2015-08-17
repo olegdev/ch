@@ -2,7 +2,7 @@
 
 require.config({
 	baseUrl: 'js/app',
-	paths: {				
+	paths: {
 		'jquery': '../vendor/jquery/dist/jquery',
 		'underscore': '../vendor/underscore/underscore',
 		'backbone': '../vendor/backbone/backbone',
@@ -11,6 +11,7 @@ require.config({
 		'marionette': '../vendor/marionette/lib/backbone.marionette',
 		'text': '../vendor/text/text',
 		'socket.io': '../vendor/socket.io-client/socket.io',
+		'references': '/js/references/ru'
 	}
 });
 

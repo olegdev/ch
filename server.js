@@ -70,13 +70,14 @@ app.set('view engine', 'handlebars');
 // ============== ROUTES ================
 
 app.get("/", function(req, res, next) {
+	console.log(req.headers["accept-language"]);
 	if (!req.session.uid) {
 		res.redirect('/login');
 	} else {
 		getConfig
 			.getConfig(req.session.uid)
 			.then(function(config) {
-				ucache.set(uid, config.user);
+				ucache.set(req.session.uid, config.user);
 				app.locals.config = JSON.stringify(config);
 				res.render('main', {layout: 'main'});
 			});
@@ -92,7 +93,7 @@ app.get("/login", function(req, res, next) {
 app.post('/login', function(req, res, next) {
 	auth
 		.auth(req.body.login, req.body.pass)
-		.then(function(uid) {			
+		.then(function(uid) {
 			if (uid) {
 				req.session.uid = uid;
 				res.redirect('/');
