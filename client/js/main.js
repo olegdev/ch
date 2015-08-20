@@ -19,10 +19,10 @@ require.config({
  * Инициализация приложения
  */
 
-var CH = {};
+var Game = {};
 
-require(['jquery', 'app',], function($, App){  	
+require(['app/app',], function(App){
 	$(function() {
-		CH = App.initialize(config); // config - глобальный конфиг от сервера
+		Game = App.initialize(config); // config - глобальный конфиг от сервера
 	});
 });

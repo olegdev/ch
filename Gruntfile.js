@@ -8,6 +8,22 @@ var _ = require('underscore');
 module.exports = function(grunt) {
 
     grunt.initConfig({
+        watch: {
+            scripts: {
+                files: ['**/*.xcss'],
+                tasks: ['cssbackground']
+            },
+        },
+        cssbackground: {
+            options:{
+                excss_file_ext: 'xcss',
+                excss_src: './client/js/app',
+                atlas_src: './client/img',
+                img_url: 'img',
+                img_ext: 'png',
+                dest: './client/css',
+            }
+        },
         references: {
             options:{
                 src: './server/services/references',
@@ -20,6 +36,87 @@ module.exports = function(grunt) {
                 dest: './server/services/dictionary',
             }
         },
+    });
+
+    grunt.loadNpmTasks('grunt-contrib-watch');
+
+    grunt.registerTask('cssbackground', 'Формирует css стили для картинки из атласа.', function() {
+        var options = this.options(),
+            atlases = {}; 
+
+        var findXCSS = function(path, buff) {
+            grunt.file.recurse(path, function(abspath, rootdir, subdir, filename) {
+                if (grunt.file.isDir(abspath)) {
+                    findXCSS(abspath, buff);
+                } else if (grunt.file.isFile(abspath)) {
+                    if (filename.substr(filename.length-options.excss_file_ext.length) == options.excss_file_ext) {
+                        buff.push({path: abspath, filename: filename});
+                    }
+                }
+            });
+        }
+
+        var files = [];
+
+        // находим все "excss" файлы
+        findXCSS(options.excss_src, files);
+
+        /***/ grunt.log.writeln("Найдено " + files.length + " "+ options.excss_file_ext +" файлов.");
+
+        // для каждого файла
+        files.forEach(function(item) {
+            var str = grunt.file.read(item.path);
+            // находим вызовы команды вида "/**@background ..." и заменяем на конкретные стили
+            var matches = str.match(/\/\*\*@background\s[\sa-z0-9\.\-_]+\*\//gi);            
+            if (matches && matches.length) {
+                matches.forEach(function(m) {
+                    var arg = '',
+                        atlaseName,
+                        imgName,
+                        style;
+                    var parts = m.split(' ');
+                    parts.shift();
+                    parts.forEach(function(part) {
+                        if (/^--/.test(part)) {
+                            arg = part.substr(2);
+                        } else if (arg) {
+                            if (arg == 'atlas') {
+                                atlaseName = part;
+                            } else if (arg == 'img') {
+                                imgName = part.substr(0, part.length-2); // удаляю терминальные символы "*/"
+                            } else {
+                                /***/ grunt.log.error('Неизвестный аргумент вызова команды "' + arg + '"');
+                            }
+                        } else {
+                            /***/ grunt.log.error('Неверный формат вызова команды "' + m + '"');
+                        }
+                    });
+                    if (atlaseName && imgName) {
+                        if (!atlases[atlaseName]) {
+                            if (grunt.file.isFile(options.atlas_src + '/' + atlaseName + '.json')) {
+                                atlases[atlaseName] = JSON.parse(fs.readFileSync(options.atlas_src + '/' + atlaseName + '.json', 'utf8'));
+                            } else {
+                                /***/ grunt.log.error('Файл атласа не найден "' + atlaseName + '"');
+                            }
+                        }
+                        if (atlases[atlaseName].frames[imgName]) {
+                            style = 'background-image: url('+ options.img_url + '/' + atlaseName + '.' + options.img_ext + ');\n' +
+                                    'background-position: ' + atlases[atlaseName].frames[imgName].frame.x + 'px ' + atlases[atlaseName].frames[imgName].frame.y + 'px;\n'+
+                                    'width: ' + atlases[atlaseName].frames[imgName].frame.w + 'px;' +
+                                    'height: ' + atlases[atlaseName].frames[imgName].frame.h + 'px;';
+                            str = str.replace(m, style);
+                        } else {
+                            /***/ grunt.log.error('Данные для картинки "' + imgName + '" в атласе "' + atlaseName + '" не определены');
+                        }
+                    } else {
+                        /***/ grunt.log.error('Неверный формат вызова команды "' + m + '" Файл атласа или картинки не определен');
+                    }
+                });
+            }
+            // и сохраняем в нужную папку
+            grunt.file.write(options.dest + '/' + item.filename.replace(options.excss_file_ext, 'css'), str, {encoding: 'utf8'});
+        });
+
     });
 
     grunt.registerTask('references', 'Обработка справочников для клиента', function() {
