@@ -10,7 +10,7 @@ require.config({
 		'backbone.wreqr': '../vendor/lib/backbone.wreqr',
 		'marionette': '../vendor/marionette/lib/backbone.marionette',
 		'text': '../vendor/text/text',
-		'socket.io': '../vendor/socket.io-client/socket.io',
+		'socket.io': '../vendor/socket.io-client/socket.io',		
 		'references': '/js/references/ru'
 	}
 });
@@ -21,7 +21,7 @@ require.config({
 
 var Game = {};
 
-require(['app/app',], function(App){
+require(['jquery', 'app/app',], function($, App){
 	$(function() {
 		Game = App.initialize(config); // config - глобальный конфиг от сервера
 	});

@@ -1,21 +1,21 @@
-define([
-	'jquery',
-	'underscore',
-	'backbone',
+define([		
 	'marionette',
-	'socket.io',
-	'viewport',
-	'models/user',
-], function($, _, Backbone, Mn, sio, Viewport, User) {
+	'logger/logger',
+	'sockets/sockets',
+], function(Mn, Logger, sockets) {
+
+	var logger = new Logger("app");
+
 	return {
 		initialize: function(config) {			
 			var app = new Mn.Application();
 			app.config = config;
-			
-			app.user = new User(config.user);
 
-			app.viewport = Viewport;
-			app.viewport.render(app.user);
+			if (app.config.enableInfoLog) {
+				Logger.enableInfoLog();
+			}
+
+			sockets.connect();
 
 			return app;
 		},

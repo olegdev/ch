@@ -3,8 +3,10 @@
  */
 
 var logger = require(SERVICES_PATH + '/logger/logger')(__filename);
+var config = require(BASE_PATH + '/server/util').getModuleConfig(__filename);
 var mongoose = require('mongoose');
 var q = require('q');
+var _ = require('underscore');
 var util = require(BASE_PATH + '/server/util');
 
 var loadUser = function(dest, uid) {
@@ -29,14 +31,14 @@ module.exports = {
 	getConfig: function(uid) {
 		var d = q.defer();
 
-		var config = {};
+		var result = _.extend({}, config);
 		
 		util
 			.whenAll([				
-				loadUser(config, uid),
+				loadUser(result, uid),
 			])
 			.then(function() {
-				d.resolve(config);
+				d.resolve(result);
 			})
 			.fail(function(err) {
 				/***/ logger.error('Ошибка при формировании конфига' + err);

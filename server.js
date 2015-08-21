@@ -15,7 +15,7 @@ var ucache = require(SERVICES_PATH + '/ucache');
 var dbconnect = require(SERVICES_PATH + '/dbconnect/dbconnect');
 
 var auth = require(SERVICES_PATH + '/auth');
-var getConfig = require(SERVICES_PATH + '/getconfig');
+var getConfig = require(SERVICES_PATH + '/getconfig/getconfig');
 
 var port = 8081;
 

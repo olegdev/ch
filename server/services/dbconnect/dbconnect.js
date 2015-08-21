@@ -14,17 +14,17 @@ var connect = function () {
 };
 
 mongoose.connection.on('connected', function() {
-	/***/ logger.info('Соединение установлено.');
+	/***/ logger.info('DB connected.');
 	isConnected = true;	
 });
 
 mongoose.connection.on('disconnected', function() {
-	/***/ logger.error('Соединение разорвано ');
+	/***/ logger.error('DB disconnected.');
 	isConnected = false;
 });
 
 mongoose.connection.on('error', function(err) {
-	/***/ logger.error('Ошибка подключения базы данных ' + err);
+	/***/ logger.error('DB connection error ' + err);
 });
 
 connect();

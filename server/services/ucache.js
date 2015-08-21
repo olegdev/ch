@@ -12,7 +12,7 @@ var CacheClass = function() {
 CacheClass.getInstance = function(){
     if (!this.instance) {
     	this.instance = new CacheClass();
-    	/***/ logger.info('кеш создан');
+    	/***/ logger.info('cache created');
     }
     return this.instance;
 }
@@ -38,7 +38,7 @@ CacheClass.prototype.setProp = function(uid, prop, value) {
 	if (data) {
 		data[prop] = value;
 	} else {
-		/***/ logger.error('ошибка записи - кеш не найден');
+		/***/ logger.error('write error, cache not found');
 	}
 }
 
@@ -47,7 +47,7 @@ CacheClass.prototype.getProp = function(uid, prop) {
 	if (data) {
 		data[prop] = value;
 	} else {
-		/***/ logger.error('ошибка чтения - кеш не найден');
+		/***/ logger.error('read error, cache not found');
 	}
 }
  
