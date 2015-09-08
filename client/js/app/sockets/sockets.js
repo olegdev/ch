@@ -9,14 +9,12 @@ define([
 	var socket;
 	var logger = new Logger("sockets");	
 
-	var listeners = {};
+	var channels = {};
 
 	return {
 		connect: function() {
 
-			var hostUrl = location.protocol + "//" +location.host;
-
-			var socket = sio(hostUrl);
+			socket = sio(location.protocol + "//" +location.host);
 
 			socket.on('connect', function() {
 				/***/ logger.info('Connection established');
@@ -24,42 +22,36 @@ define([
 			socket.on('disconnect', function() {
 				/***/ logger.info('Disconnected');
 			});
-			socket.on('push', function() {
-				/***/ logger.info('Connection push', arguments);
+			socket.on('push', function(data) {
+				/***/ logger.info('Connection push', data);
+				if (channels[data.channel]) {
+					if (channels[data.channel].listeners[data.message]) {
+						channels[data.channel].listeners[data.message](data.data);
+					} else {
+						/***/ logger.warn('Channel listener for message "' + data.message + '" not found');	
+					}
+				} else {
+					/***/ logger.warn('Channel "' + data.channel + '" not found');
+				}
+
 			});
 		},
 		
+		createChannel: function(name) {
 
+			channels[name] = {
+				listeners: {}
+			};
+
+			return {
+				on: function(message, listener) {
+					channels[name].listeners[message] = listener;
+				},
+				push: function(message, data, callback) {
+					socket.emit('push', {channel: name, message: message, data: data}, callback);
+				}
+			}
+		}
 
 	};
 });
-
-
-
-/**
-
-ShopModule 
-
-function(sockets) {
-	
-	var Shop = sockets.createChannel("shop");	
-
-	Shop.push("buy", {
-		id: 1
-	});
-
-	Shop.onServerRemoveItem(function(data) {
-		
-	});
-
-
-	channel.on("");
-	channel.on("");
-
-	return {
-		
-	}
-
-}
-
-*/

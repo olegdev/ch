@@ -11,10 +11,10 @@ var mongoose = require('mongoose');
 var winston = require('winston');
 var fs = require('fs');
 var join = require('path').join;
-var ucache = require(SERVICES_PATH + '/ucache');
 var dbconnect = require(SERVICES_PATH + '/dbconnect/dbconnect');
 
 var auth = require(SERVICES_PATH + '/auth');
+var sockets = require(SERVICES_PATH + '/sockets');
 var getConfig = require(SERVICES_PATH + '/getconfig/getconfig');
 
 var port = 8081;
@@ -70,14 +70,12 @@ app.set('view engine', 'handlebars');
 // ============== ROUTES ================
 
 app.get("/", function(req, res, next) {
-	console.log(req.headers["accept-language"]);
-	if (!req.session.uid) {
+	if (!req.session.uid) {		
 		res.redirect('/login');
 	} else {
 		getConfig
 			.getConfig(req.session.uid)
-			.then(function(config) {
-				ucache.set(req.session.uid, config.user);
+			.then(function(config) {				
 				app.locals.config = JSON.stringify(config);
 				res.render('main', {layout: 'main'});
 			});
@@ -109,7 +107,7 @@ var server = app.listen(port);
 
 // ============ Socket IO =========
 
-var sio = require("socket.io").listen(server);
+var sio = sockets.listen(server);
 
 sio.use(function(socket, next) {
     sessionMiddleware(socket.request, socket.request.res, next);
@@ -117,15 +115,6 @@ sio.use(function(socket, next) {
 sio.use(function(socket, next) {
     dbconnect(socket.request, socket.request.res, next);
 });
-
-sio.sockets.on("connection", function(client) {
-	if (client.request.session) {
-		winston.info('session win!', client.request.session.uid);
-	} else {
-		winston.info('no session');
-	}
-});
-
 
 // ============= Bootstrap models ==========
 

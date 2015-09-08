@@ -7,7 +7,7 @@ define([
 	var logger = new Logger("app");
 
 	return {
-		initialize: function(config) {			
+		initialize: function(config) {
 			var app = new Mn.Application();
 			app.config = config;
 
@@ -16,6 +16,11 @@ define([
 			}
 
 			sockets.connect();
+
+			var errorChannel = sockets.createChannel('error');
+			errorChannel.on('error', function(data) {
+				alert(data.msg);
+			});
 
 			return app;
 		},
